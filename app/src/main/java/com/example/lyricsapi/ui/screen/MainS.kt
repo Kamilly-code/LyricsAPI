@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 
@@ -21,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,12 +38,14 @@ import androidx.compose.ui.unit.dp
 import com.example.lyricsapi.R
 import com.example.lyricsapi.fetchLyrics
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.Response
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainS() {
     var songName by remember { mutableStateOf("") }
+    var artistName by remember { mutableStateOf("") }
     var lyrics by remember { mutableStateOf<String?>(null) }
     var suggestions by remember { mutableStateOf(listOf<String>()) }
     val coroutineScope = rememberCoroutineScope()
@@ -70,11 +76,16 @@ fun MainS() {
                     .padding(16.dp)
             ) {
                 TextField(
+                    value = artistName,
+                    onValueChange = { newValue ->
+                        artistName = newValue
+                    },
+                    label = { Text("Enter artist name") }
+                )
+                TextField(
                     value = songName,
                     onValueChange = { newValue ->
                         songName = newValue
-                        // Update suggestions based on the new value
-                        suggestions = getSuggestions(newValue)
                     },
                     label = { Text("Enter song name") }
                 )
@@ -95,28 +106,23 @@ fun MainS() {
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            lyrics = fetchLyrics("Adele", songName)
-
+                            lyrics = fetchLyrics(artistName, songName)
                         }
                     },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text("Get Lyrics")
                 }
-                lyrics?.let {
+                lyrics?.let { lyricsText ->
                     Text(
-                        text = it,
-                        modifier = Modifier.padding(top = 16.dp)
+                        text = lyricsText.trim().replace("\n\n", "\n"),
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .verticalScroll(rememberScrollState())
                     )
                 }
+
             }
         }
     )
 }
-
-
-fun getSuggestions(query: String): List<String> {
-    // Replace with actual logic to get suggestions
-    return listOf("Song 1", "Song 2", "Song 3").filter { it.contains(query, ignoreCase = true) }
-}
-
