@@ -1,6 +1,6 @@
 package com.example.lyricsapi.ui.screen
 
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,47 +8,46 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.lyricsapi.LyricsViewModel
+import com.example.lyricsapi.LyricsViewModelFactory
 import com.example.lyricsapi.R
-import com.example.lyricsapi.fetchLyrics
+import com.example.lyricsapi.RetrofitClient
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Response
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainS() {
     var songName by remember { mutableStateOf("") }
     var artistName by remember { mutableStateOf("") }
-    var lyrics by remember { mutableStateOf<String?>(null) }
     var suggestions by remember { mutableStateOf(listOf<String>()) }
     val coroutineScope = rememberCoroutineScope()
+
+    val lyricsRepository = RetrofitClient.lyricsRepository
+    val viewModel: LyricsViewModel = viewModel(factory = LyricsViewModelFactory(lyricsRepository))
+    val lyrics by viewModel.lyrics.collectAsState()
 
     Scaffold(
         topBar = {
@@ -62,11 +61,6 @@ fun MainS() {
             )
         },
 
-        floatingActionButton = {
-            FloatingActionButton(onClick = { /* Handle FAB click */ }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
-            }
-        },
 
         content = { paddingValues ->
             Column(
@@ -105,9 +99,7 @@ fun MainS() {
                 }
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            lyrics = fetchLyrics(artistName, songName)
-                        }
+                        viewModel.fetchLyrics(artistName, songName)
                     },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {

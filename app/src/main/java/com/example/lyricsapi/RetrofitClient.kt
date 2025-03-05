@@ -12,6 +12,10 @@ object RetrofitClient {
         getRetrofit().create(LyricsApiService::class.java)
     }
 
+    val lyricsRepository: LyricsRepository by lazy {
+        LyricsRepository(lyricsService)
+    }
+
     private fun getRetrofit():Retrofit {
         return  Retrofit.Builder()
             .baseUrl(BASE_URL)
