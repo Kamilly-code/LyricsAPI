@@ -1,6 +1,6 @@
-package com.example.lyricsapi
+package com.example.lyricsapi.ui.network
 
-import retrofit2.Call
+import com.example.lyricsapi.data.LyricsResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
