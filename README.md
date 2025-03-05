@@ -1,5 +1,7 @@
 Integrantes: Kamilly Brito da Mata
+
 Esta aplicación permite a los usuarios buscar y visualizar letras de canciones. Los usuarios pueden ingresar el nombre del artista y el título de la canción para obtener las letras correspondientes. Utiliza Jetpack Compose para la interfaz de usuario, Retrofit para las solicitudes de red y un ViewModel para gestionar los datos de la UI.
+
 Funcionalidades:
 1. **Búsqueda de Letras de Canciones**:
    - Los usuarios pueden ingresar el nombre del artista y el nombre de la canción para buscar las letras.
